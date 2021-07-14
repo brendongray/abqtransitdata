@@ -2,7 +2,7 @@
 title: "CABQ Transit Peer Review"
 author: "Brendon Gray"
 date: "May 2020 and revised June 2021"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
