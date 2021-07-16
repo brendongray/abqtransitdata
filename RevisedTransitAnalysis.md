@@ -3,8 +3,6 @@ CABQ Transit Peer Review
 Brendon Gray
 May 2020 and revised June 2021
 
-![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
 # Key Findings
 
   - Albuquerque transit is more efficient than many peers.
@@ -59,6 +57,8 @@ This analysis is a simple representation that does not include many
 factors, such as cities’ demographics. No statistic perfectly captures a
 comparison between any two transit systems.
 
+![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
 # Demographics
 
 The average service population of the peer group is about 706,000.
@@ -105,6 +105,8 @@ average of $5.81. Albuquerque is, again, near the peer group average
 with overall operating costs and in the upper quarter with effectiveness
 measures.
 
+![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+
 # Fares
 
 Fare revenue was compared across the peer group. Although Albuquerque
@@ -120,6 +122,97 @@ Sacramento, Omaha, Bakersfield, and Tucson) have relatively low service
 provision and service efficiency (page 2). This may indicate these
 systems operate under a different business model, which would explain
 the dramatic differences in recovery ratios.
+
+![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+    ##  [1] 0.1325 0.1325 0.1325 0.1325 0.1325 0.1325 0.1325 0.1325 0.1325 0.1325
+    ## [11] 0.1325 0.1325
+
+    ##       agency_name fare_revenues_per_total_operating_expense_recover_ratio
+    ## 1    Indianapolis                                                    0.10
+    ## 2         El Paso                                                    0.14
+    ## 3   Oklahoma City                                                    0.10
+    ## 4           Tulsa                                                    0.17
+    ## 5     Albuquerque                                                    0.07
+    ## 6           Omaha                                                    0.15
+    ## 7     Kansas City                                                    0.09
+    ## 8  Salt Lake City                                                    0.13
+    ## 9          Denver                                                    0.19
+    ## 10    Bakersfield                                                    0.16
+    ## 11     Sacramento                                                    0.15
+    ## 12         Fresno                                                    0.14
+    ##    fare_revenues_per_unlinked_passenger_trip
+    ## 1                                       0.94
+    ## 2                                       0.66
+    ## 3                                       0.78
+    ## 4                                       0.96
+    ## 5                                       0.34
+    ## 6                                       1.23
+    ## 7                                       0.66
+    ## 8                                       0.94
+    ## 9                                       1.13
+    ## 10                                      0.70
+    ## 11                                      1.34
+    ## 12                                      0.61
+    ##    avg_fare_revenues_per_total_operating_expense_recover_ratio
+    ## 1                                                       0.1325
+    ## 2                                                       0.1325
+    ## 3                                                       0.1325
+    ## 4                                                       0.1325
+    ## 5                                                       0.1325
+    ## 6                                                       0.1325
+    ## 7                                                       0.1325
+    ## 8                                                       0.1325
+    ## 9                                                       0.1325
+    ## 10                                                      0.1325
+    ## 11                                                      0.1325
+    ## 12                                                      0.1325
+    ##    avg_fare_revenues_per_unlinked_passenger_trip fare_per_upt_diffs
+    ## 1                                         0.8575            -0.0325
+    ## 2                                         0.8575             0.0075
+    ## 3                                         0.8575            -0.0325
+    ## 4                                         0.8575             0.0375
+    ## 5                                         0.8575            -0.0625
+    ## 6                                         0.8575             0.0175
+    ## 7                                         0.8575            -0.0425
+    ## 8                                         0.8575            -0.0025
+    ## 9                                         0.8575             0.0575
+    ## 10                                        0.8575             0.0275
+    ## 11                                        0.8575             0.0175
+    ## 12                                        0.8575             0.0075
+    ##    is_diff_negative
+    ## 1     Below Average
+    ## 2     Above Average
+    ## 3     Below Average
+    ## 4     Above Average
+    ## 5     Below Average
+    ## 6     Above Average
+    ## 7     Below Average
+    ## 8     Below Average
+    ## 9     Above Average
+    ## 10    Above Average
+    ## 11    Above Average
+    ## 12    Above Average
+
+![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+
+    ## # A tibble: 12 x 3
+    ##    agency_name    tot_op_expenses avg_op_expenses
+    ##    <fct>                    <dbl>           <dbl>
+    ##  1 Albuquerque             44494.         100601.
+    ##  2 Bakersfield             27164.         100601.
+    ##  3 Denver                 411734.         100601.
+    ##  4 El Paso                 54727.         100601.
+    ##  5 Fresno                  44445.         100601.
+    ##  6 Indianapolis            82833.         100601.
+    ##  7 Kansas City             85660.         100601.
+    ##  8 Oklahoma City           23218.         100601.
+    ##  9 Omaha                   26326.         100601.
+    ## 10 Sacramento             163163.         100601.
+    ## 11 Salt Lake City         229181.         100601.
+    ## 12 Tulsa                   14270.         100601.
+
+![](RevisedTransitAnalysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 # Large Systems Comparison
 
