@@ -170,9 +170,9 @@ service_2019_df <- service_2019 %>%
     time_period == "Annual Total",
     !mode %in% c("CR", "DR", "DT", "FB", "VP"),
     tos == "DO",
-    ntd_id %in% c(80005, 60019, 60006, 90033, 90032, 
-                  80001, 90045, 80006, 90019, 50050, 
-                  70005, 70035, 60017, 70002, 60018, 
+    ntd_id %in% c(60019, 60006, 90033, 90032, 
+                  90045, 90019, 50050, 80005, 60018,
+                  70005, 70035, 60048, 60017, 70002, 
                   90027, 90004)
     ) %>%
   as.data.frame(
@@ -180,6 +180,7 @@ service_2019_df <- service_2019 %>%
   mutate_at(., 
     "ntd_id", as.numeric
   )
+
 service_2019_df
 
 op_costs_2019 <- read_excel("2019OperatingExpenses.xlsx")
@@ -206,9 +207,9 @@ op_costs_2019_df <- op_costs_2019 %>%
       operating_expense_type == "Total",
       !mode %in% c("CR", "DR", "DT", "FB", "VP"),
       tos == "DO",
-      ntd_id %in% c(80005, 60019, 60006, 90033, 90032, 
-                    80001, 90045, 80006, 90019, 50050, 
-                    70005, 70035, 60017, 70002, 60018, 
+      ntd_id %in% c(60019, 60006, 90033, 90032, 
+                    90045, 90019, 50050, 80005, 60018,
+                    70005, 70035, 60048, 60017, 70002, 
                     90027, 90004)
   ) %>%
   as.data.frame(
@@ -216,6 +217,8 @@ op_costs_2019_df <- op_costs_2019 %>%
   mutate_at(., 
     "ntd_id", as.numeric
   )
+
+op_costs_2019_df
 
 ntd_metrics <- read.csv("NTD_Metrics.csv")
 ntd_metrics_df <- ntd_metrics %>%
@@ -260,9 +263,9 @@ ntd_metrics_df <- ntd_metrics %>%
   filter(
       !mode %in% c("CR", "DR", "DT", "FB", "VP"),
       tos == "DO",
-      ntd_id %in% c(80005, 60019, 60006, 90033, 90032, 
-                    80001, 90045, 80006, 90019, 50050, 
-                    70005, 70035, 60017, 70002, 60018, 
+      ntd_id %in% c(60019, 60006, 90033, 90032, 
+                    90045, 90019, 50050, 80005, 60018,
+                    70005, 70035, 60048, 60017, 70002, 
                     90027, 90004)
   ) %>%
   as.data.frame(
@@ -299,8 +302,6 @@ all_service_metrics_fin <- service_costs_metrics %>%
                                 "City of Albuquerque" = "Albuquerque",
                                 "Transit Authority of Omaha" = "Omaha",
                                 "Kansas City Area Transportation Authority" = "Kansas City",
-                                "Utah Transit Authority" = "Salt Lake City", 
-                                "Denver Regional Transportation District" = "Denver",
                                 "Golden Empire Transit District" = "Bakersfield", 
                                 "Sacramento Regional Transit District" = "Sacramento",
                                 "City of Fresno" = "Fresno")
