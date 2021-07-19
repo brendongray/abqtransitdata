@@ -12,92 +12,10 @@ library(readxl)
 library(forcats)
 library(scales)
 library(stringr)
+library(viridis)
 ```
 
 ```{r, include=FALSE}
-library(tidyverse) 
-library(knitr)
-library(viridis)
-
-theme_minimal <- function(base_size = 11, base_family = "",
-                          base_line_size = base_size / 22,
-                          base_rect_size = base_size / 22) {
-  # Starts with theme_bw and remove most parts
-  theme_bw(
-    base_size = base_size,
-    base_family = base_family,
-    base_line_size = base_line_size,
-    base_rect_size = base_rect_size
-  ) %+replace%
-    theme(
-      axis.ticks        = element_blank(),
-      legend.background = element_blank(),
-      legend.key        = element_blank(),
-      panel.background  = element_blank(),
-      panel.border      = element_rect(linetype = "solid", color = "grey", fill = NA),
-      strip.background  = element_blank(),
-      plot.background   = element_blank(),
-      plot.caption = element_text(hjust = 0, vjust = 1),
-
-      complete = TRUE
-    )
-}
-
-theme_minimal_60 <- function(base_size = 11, base_family = "",
-                          base_line_size = base_size / 22,
-                          base_rect_size = base_size / 22) {
-  # Starts with theme_bw and remove most parts
-  theme_bw(
-    base_size = base_size,
-    base_family = base_family,
-    base_line_size = base_line_size,
-    base_rect_size = base_rect_size
-  ) %+replace%
-    theme(
-      axis.text.x       = element_text(angle = 60),
-      axis.ticks        = element_blank(),
-      legend.background = element_blank(),
-      legend.key        = element_blank(),
-      panel.background  = element_blank(),
-      panel.border      = element_blank(),
-      panel.grid.major  = element_blank(),
-      strip.background  = element_blank(),
-      plot.background   = element_blank(),
-      complete = TRUE
-    )
-}
-
-
-theme_minimal_blank.x <- function(base_size = 11, base_family = "",
-                          base_line_size = base_size / 22,
-                          base_rect_size = base_size / 22) {
-  # Starts with theme_bw and remove most parts
-  theme_bw(
-    base_size = base_size,
-    base_family = base_family,
-    base_line_size = base_line_size,
-    base_rect_size = base_rect_size
-  ) %+replace%
-    theme(
-      axis.title        = element_blank(),
-      axis.ticks.x      = element_blank(),
-      legend.background = element_blank(),
-      legend.key        = element_blank(),
-      plot.title        = element_text(hjust = 0),
-      plot.subtitle     = element_text(hjust = 0),
-      panel.background  = element_blank(),
-      panel.border      = element_blank(),
-      panel.grid.major  = element_blank(),
-      panel.grid.minor  = element_blank(),
-      axis.ticks        = element_blank(),
-      strip.background  = element_blank(),
-      plot.background   = element_blank(),
-      axis.line.x.bottom = element_line(color = "red"),
-      complete = TRUE
-    )
-}
-
-
 theme_classic_transit <- function(base_size = 11, 
                                   # base_family = "sans",
                           base_line_size = base_size / 22,
@@ -125,8 +43,6 @@ theme_classic_transit <- function(base_size = 11,
       complete = TRUE
     )
 }
-
-
 ```
 
 ```{R, include=FALSE}
@@ -363,7 +279,44 @@ Some cities in the comparison group are much more populous than Albuquerque, suc
 
 These statistics demonstrate Albuquerque meets or exceeds the average performance of its peers. Albuquerque tends to have a more efficient system than those in this peer group. The city has the third highest riders per capita, for example. Likewise, although Albuquerque’s operating costs and level service provision are about at the peer group average, the city’s efficiency with respect to cost and service provision is considerably higher than the peer group average.
 
+The average service population of the peer group is about 706,000. Albuquerque is about 40,000 less populous than the average. Austin, TX has a population roughly twice as large as the average. Throughout the comparison, note that Austin is an outlier in this regard. Albuquerque is one of 5 cities in the southwest; the remaining are either on the west coast or in the Midwest. Comparisons across geography add another layer of complexity, as some systems have been operating for longer than Albuquerque’s. MSA population was not included in this analysis. 
+
 This analysis is a simple representation that does not include many factors, such as cities’ demographics. No statistic perfectly captures a comparison between any two transit systems.
+
+# Trips
+Albuquerque has a high number of unlinked passenger trips per capita, relative to the peer group. The per capita average is 9.7. Albuquerque’s 14.6 puts it well above that average, competing with cities like El Paso, TX and Fresno, CA.
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+#, fig.width = 10
+# service metrics
+service_size_metrics <- all_service_metrics_fin %>%
+  group_by(
+    agency_name
+  ) %>%
+  summarize(
+    total_upt = sum(unlinked_passenger_trips)/1000
+  ) %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, total_upt),
+    avg_upt = mean(total_upt)
+  )
+ 
+avg_upt <- service_size_metrics$total_upt
+  ggplot(data=service_size_metrics, aes(x = total_upt, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", width = 0.70, position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_upt, color = "Average"), linetype = "dashed") +
+  labs(title = "Annual Trips",
+       subtitle = "In '000s, 2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+
+```
+
 
 ```{R, echo=FALSE, message=FALSE, warning=FALSE}
 #, fig.width = 10
@@ -395,14 +348,6 @@ avg_rev_miles <- rev_hours$avg_rev_miles
   theme(legend.title=element_blank())
 
 ```
-
-# Demographics
-
-The average service population of the peer group is about 706,000. Albuquerque is about 40,000 less populous than the average. Austin, TX has a population roughly twice as large as the average. Throughout the comparison, note that Austin is an outlier in this regard. Albuquerque is one of 5 cities in the southwest; the remaining are either on the west coast or in the Midwest. Comparisons across geography add another layer of complexity, as some systems have been operating for longer than Albuquerque’s. MSA population was not included in this analysis. 
-
-# Trips
-Albuquerque has a high number of unlinked passenger trips per capita, relative to the peer group. The per capita average is 9.7. Albuquerque’s 14.6 puts it well above that average, competing with cities like El Paso, TX and Fresno, CA.
-
 
 # Service
 Peers averaged 5.09 million revenue hours while Albuquerque provided just 4.04 million. Austin is a notable outlier within the peer group; removing that transit agency puts the peer group average at 4.36 million, just above Albuquerque. 
@@ -533,6 +478,19 @@ avg_fare_revenues_per_total_operating_expense_recover_ratio <- summ_revs_earned$
 
 avg_fare_revenues_per_unlinked_passenger_trip <- summ_revs_earned$avg_fare_revenues_per_unlinked_passenger_trip
 
+ggplot(data=fare_revs_upt, aes(x = fare_revenues_per_unlinked_passenger_trip, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_fare_revenues_per_unlinked_passenger_trip, color = "Average"), linetype="dashed") +
+  labs(title = "Fare Revenues per UPT",
+       subtitle = "2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+
 ggplot(data=recov_ratio, aes(x = fare_revenues_per_total_operating_expense_recover_ratio, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
   geom_col(stat="identity", position = position_dodge(), alpha = 1) +
   scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
@@ -547,20 +505,12 @@ ggplot(data=recov_ratio, aes(x = fare_revenues_per_total_operating_expense_recov
   theme(legend.title=element_blank())
 
 
-ggplot(data=fare_revs_upt, aes(x = fare_revenues_per_unlinked_passenger_trip, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
-  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
-  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
-  geom_vline(aes(xintercept = avg_fare_revenues_per_unlinked_passenger_trip, color = "Average"), linetype="dashed") +
-  labs(title = "Fare Revenues per UPT",
-       subtitle = "2019",
-       y = "",
-       caption = "Data from National Transit Database, 2019") +
-  guides(fill=FALSE) +
-  scale_x_continuous(labels = scales::comma) +
-  theme_classic_transit() +
-  theme(legend.title=element_blank())
-
 ```
+
+
+
+# Large Systems Comparison
+A sample of large systems were selected to compare against Albuquerque’s metrics. To simplify the comparison, three metrics were selected: service population, annual trips, and fare efficiency. Cities in orange have light rail service options (or the equivalent); cities in blue do not. As expected, cities with more population tend to have light rail service. Albuquerque has both a relatively small service population and a lower number of annual trips provided. Note cities who service similarly populous areas (Dallas, Portland, and Phoenix) all have below average fare efficiency. Albuquerque has comparable fare efficiency to this subset of systems. 
 
 ```{R, echo=FALSE, message=FALSE, warning=FALSE}
 summ_revs_earned <- all_service_metrics_fin %>%
@@ -578,7 +528,7 @@ summ_revs_earned <- all_service_metrics_fin %>%
   )
 
 avg_fare_revenues_per_total_operating_expense_recover_ratio <- summ_revs_earned$avg_fare_revenues_per_total_operating_expense_recover_ratio
-avg_fare_revenues_per_total_operating_expense_recover_ratio
+
 avg_fare_revenues_per_unlinked_passenger_trip <- summ_revs_earned$avg_fare_revenues_per_unlinked_passenger_trip
 
 recov_ratio <- summ_revs_earned %>%
@@ -593,7 +543,7 @@ fare_revs_upt <- summ_revs_earned %>%
     agency_name = fct_reorder(agency_name, fare_per_upt_diffs)
   ) 
 
-fare_revs_upt
+
 
 ggplot(data=fare_revs_upt, aes(x = fare_per_upt_diffs, y = agency_name, fill = is_diff_negative)) +
   geom_col(stat="identity", position = position_dodge(), alpha = 1) +
@@ -604,7 +554,7 @@ ggplot(data=fare_revs_upt, aes(x = fare_per_upt_diffs, y = agency_name, fill = i
        subtitle = "2019",
        y = "",
        caption = "Data from National Transit Database, 2019") +
-  theme_minimal_blank.x() +
+  theme_classic_transit() +
   guides(fill=FALSE) +
   scale_x_continuous(labels = scales::comma)
 
@@ -621,7 +571,7 @@ ggplot(data=fare_revs_upt, aes(x = fare_per_upt_diffs, y = agency_name, label = 
        subtitle = "2019",
        y = "",
        caption = "Data from National Transit Database, 2019") +
-  theme_minimal_blank.x() +
+  theme_classic_transit() +
   guides(fill=FALSE) +
   scale_x_continuous(labels = scales::comma) +
   theme(legend.title=element_blank())
@@ -632,40 +582,6 @@ ggplot(data=fare_revs_upt, aes(x = fare_per_upt_diffs, y = agency_name, label = 
 
 
 ```
-
-```{R, echo=FALSE, message=FALSE, warning=FALSE}
-# operating cost per revenue hour
-op_expenses <- all_service_metrics_fin %>%
-  group_by(
-    agency_name
-  ) %>%
-  summarize(
-    tot_op_expenses = sum(total_operating_expenses)/1000
-  ) %>%
-  mutate(
-    agency_name = fct_reorder(agency_name, tot_op_expenses, .desc = TRUE),
-    avg_op_expenses = mean(tot_op_expenses)
-  )
-op_expenses 
-avg_op_expenses <- op_expenses$avg_op_expenses
-
-  ggplot(data=op_expenses, aes(x = tot_op_expenses, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
-  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
-  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
-  geom_vline(xintercept = avg_op_expenses, linetype="dashed", color = "#DD934E") +
-  labs(title = "Annual Operating Costs",
-       subtitle = "In '000s, 2019",
-       y = "",
-       caption = "Data from National Transit Database, 2019") +
-  theme_minimal_blank.x() +
-  guides(fill=FALSE) +
-  scale_x_continuous(labels = scales::comma)
-
-```
-
-
-# Large Systems Comparison
-A sample of large systems were selected to compare against Albuquerque’s metrics. To simplify the comparison, three metrics were selected: service population, annual trips, and fare efficiency. Cities in orange have light rail service options (or the equivalent); cities in blue do not. As expected, cities with more population tend to have light rail service. Albuquerque has both a relatively small service population and a lower number of annual trips provided. Note cities who service similarly populous areas (Dallas, Portland, and Phoenix) all have below average fare efficiency. Albuquerque has comparable fare efficiency to this subset of systems. 
 
 
 
