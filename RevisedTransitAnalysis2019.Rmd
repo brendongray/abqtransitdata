@@ -98,7 +98,6 @@ service_2019_df <- service_2019 %>%
   as.data.frame(
   )
 
-service_2019_df
 
 op_costs_2019_df <- op_costs_2019 %>%
   select(
@@ -127,7 +126,6 @@ op_costs_2019_df <- op_costs_2019 %>%
   as.data.frame(
   )
 
-op_costs_2019_df
 
 ntd_metrics_df <- ntd_metrics %>%
   select(
@@ -176,7 +174,6 @@ ntd_metrics_df <- ntd_metrics %>%
   as.data.frame(
   )
 
-ntd_metrics_df
 
 # join dfs
 
@@ -228,7 +225,6 @@ all_service_metrics_fin <- service_costs_metrics %>%
   ) 
 
 
-all_service_metrics_fin
 
     
 ```
@@ -281,7 +277,6 @@ service_size_metrics <- all_service_metrics_fin %>%
   )
 
 avg_upt <- service_size_metrics$avg_upt
-avg_upt
   ggplot(data=service_size_metrics, aes(x = total_upt, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
   geom_col(stat="identity", width = 0.70, position = position_dodge(), alpha = 1) +
   scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
@@ -314,9 +309,9 @@ rev_hours <- all_service_metrics_fin %>%
     agency_name = fct_reorder(agency_name, total_vehicle_rev_miles),
     avg_rev_miles = mean(total_vehicle_rev_miles)
   )
-rev_hours
+
 avg_rev_miles <- rev_hours$avg_rev_miles
-avg_rev_miles
+
   ggplot(data=rev_hours, aes(x = total_vehicle_rev_miles, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
   geom_col(stat="identity", width = 0.70, position = position_dodge(), alpha = 1) +
   scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
@@ -411,8 +406,8 @@ ggplot(data=op_expenses_per_upt, aes(x = op_expense_per_upt, y = agency_name, fi
 The city’s cost per revenue hour was \$106, below the average of \$111.6. 
 
 ```{R, echo=FALSE, message=FALSE, warning=FALSE}
-op_expenses_per_rev_hour
-avg_op_expense_per_rev_hour
+
+
 
 ggplot(data=op_expenses_per_rev_hour, aes(x = op_expense_per_rev_hour, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
   geom_col(stat="identity", position = position_dodge(), alpha = 1) +
@@ -470,7 +465,7 @@ fare_revs_upt <- summ_revs_earned %>%
   mutate(
     agency_name = fct_reorder(agency_name, fare_revenues_per_unlinked_passenger_trip)
   )
-fare_revs_upt
+
 avg_fare_revenues_per_total_operating_expense_recover_ratio <- summ_revs_earned$avg_fare_revenues_per_total_operating_expense_recover_ratio
 
 avg_fare_revenues_per_unlinked_passenger_trip <- summ_revs_earned$avg_fare_revenues_per_unlinked_passenger_trip
