@@ -1,0 +1,530 @@
+---
+title: "CABQ Transit Peer Review"
+author: "Brendon Gray"
+date: "May 2020 and revised June 2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+library(forcats)
+library(scales)
+library(stringr)
+library(viridis)
+```
+
+```{r, include=FALSE}
+theme_classic_transit <- function(base_size = 11, 
+                                  base_family = "sans",
+                                  base_line_size = base_size / 22,
+                                  base_rect_size = base_size / 22) {
+  # Starts with theme_bw and remove most parts
+  theme_classic(
+    base_size = base_size,
+    base_family = base_family,
+    base_line_size = base_line_size,
+    base_rect_size = base_rect_size
+  ) %+replace%
+    theme(
+      axis.title        = element_blank(),
+      legend.background = element_blank(),
+      legend.key        = element_blank(),
+      panel.background  = element_blank(),
+      panel.border      = element_blank(),
+      panel.grid.major  = element_blank(),
+      panel.grid.minor  = element_blank(),
+      strip.background  = element_blank(),
+      plot.background   = element_blank(),
+      complete = TRUE
+    )
+}
+```
+
+
+```{R, include=FALSE}
+# Load the raw data.
+
+service_2019 <- read_excel("2019Service.xlsx") # service metrics
+ntd_metrics <- read.csv("2019_NTD_Metrics.csv") # summary metric compiled by NTD
+op_costs_2019 <- read_excel("2019OperatingExpenses.xlsx") # operating cost metrics 
+
+# LIst of NTD IDs used to call later.
+ntd_id_list <- c(60019, 60006, 90033,  
+                  90019, 50050, 80005, 60018,
+                  70005, 70035, 60048, 60017, 70002, 
+                  90027, 90004)
+
+service_2019_df <- service_2019 %>%
+  select(
+    "NTD ID",
+    "Agency Name",
+    "Time Period",
+    "Mode",
+    "TOS",
+    "Vehicles/Passenger Cars Operated in Maximum Service",
+    "Vehicles/Passenger Cars Available for Maximum Service",
+    "Actual Vehicle/Passenger Car Miles",
+    "Actual Vehicle/Passenger Car Revenue Miles",
+    "Actual Vehicle/Passenger Car Deadhead Miles",
+    "Actual Vehicle/Passenger Car Hours",
+    "Actual Vehicle/Passenger Car Revenue Hours",
+    "Actual Vehicle/Passenger Car Deadhead Hours",
+    "Passenger Miles",
+  ) %>%
+  rename(
+    ntd_id = "NTD ID",
+    agency_name = "Agency Name",
+    time_period = "Time Period",
+    mode = "Mode",
+    tos = "TOS",
+    vechicles_op_max_service = "Vehicles/Passenger Cars Operated in Maximum Service",
+    vehicles_avail_max_service = "Vehicles/Passenger Cars Available for Maximum Service",
+    actual_vehicle_car_miles = "Actual Vehicle/Passenger Car Miles",
+    actual_vehicle_car_revenue_miles = "Actual Vehicle/Passenger Car Revenue Miles",
+    actual_vehicle_car_deadhead_miles = "Actual Vehicle/Passenger Car Deadhead Miles",
+    actual_vehicle_car_hours = "Actual Vehicle/Passenger Car Hours",
+    actual_vehicle_car_revenue_hours = "Actual Vehicle/Passenger Car Revenue Hours",
+    actual_vehicle_car_deadhead_hours = "Actual Vehicle/Passenger Car Deadhead Hours",
+    passenger_miles = "Passenger Miles",
+  ) %>%
+  filter(
+    time_period == "Annual Total", # annual figures only
+    !mode %in% c("CR", "DR", "DT", "FB", "VP"), # including services that are similar to ABQ
+    tos %in% c("DO", "PT"), # like above, DO service is used by ABQ. Use PT also because some cities in sample only offer it.
+    ntd_id %in% ntd_id_list # filtering NTDs 
+    ) %>%
+  as.data.frame(
+  )
+
+service_2019_df
+
+op_costs_2019_df <- op_costs_2019 %>%
+  select(
+    "NTD ID",
+    "Agency Name",
+    "Mode",
+    "TOS",
+    "Operating Expense Type",
+    "Total Operating Expenses",
+    "ADA Related Expenses"
+  ) %>%
+  rename(
+    ntd_id = "NTD ID",
+    agency_name = "Agency Name",
+    mode = "Mode",
+    tos = "TOS",
+    operating_expense_type = "Operating Expense Type",
+    total_operating_expenses = "Total Operating Expenses"
+  ) %>%
+  filter(
+      operating_expense_type == "Total", # include only total expenses
+      !mode %in% c("CR", "DR", "DT", "FB", "VP"), # including services that are similar to ABQ
+      tos %in% c("DO", "PT"), # like above, DO service is used by ABQ. Use PT also because some cities in sample only offer it.
+      ntd_id %in% ntd_id_list # filtering NTDs 
+  ) %>%
+  as.data.frame(
+  )
+
+op_costs_2019_df
+
+ntd_metrics_df <- ntd_metrics %>%
+  select(
+    Agency,
+    City,
+    NTD.ID,
+    Agency.VOMS,
+    Mode,
+    TOS,
+    Mode.VOMS,
+    Fare.Revenues.per.Unlinked.Passenger.Trip,
+    Fare.Revenues.per.Total.Operating.Expense..Recovery.Ratio.,
+    Cost.per..Hour,
+    Passengers.per.Hour,
+    Cost.per.Passenger,
+    Cost.per.Passenger.Mile,
+    Fare.Revenues.Earned,
+    Unlinked.Passenger.Trips,
+    Vehicle.Revenue.Hours,
+    Vehicle.Revenue.Miles
+  ) %>%
+  rename(
+    agency_name = Agency,
+    city = City,
+    ntd_id = NTD.ID,
+    agency_voms = Agency.VOMS,
+    mode = Mode,
+    tos = TOS,
+    mode_voms = Mode.VOMS,
+    fare_revenues_per_unlinked_passenger_trip = Fare.Revenues.per.Unlinked.Passenger.Trip,
+    fare_revenues_per_total_operating_expense_recover_ratio = Fare.Revenues.per.Total.Operating.Expense..Recovery.Ratio.,
+    cost_per_hour = Cost.per..Hour,
+    passengers_per_hour = Passengers.per.Hour,
+    cost_per_passenger = Cost.per.Passenger,
+    cost_per_passenger_mile = Cost.per.Passenger.Mile,
+    fare_revenues_earned = Fare.Revenues.Earned,
+    unlinked_passenger_trips = Unlinked.Passenger.Trips,
+    vehicle_revenue_hours = Vehicle.Revenue.Hours,
+    vehicle_revenue_miles = Vehicle.Revenue.Miles    
+  ) %>%
+  filter(
+      !mode %in% c("CR", "DR", "DT", "FB", "VP"),
+      tos %in% c("DO", "PT"), # like above, DO service is used by ABQ. Use PT also because some cities in sample only offer it.
+      ntd_id %in% ntd_id_list
+  ) %>%
+  as.data.frame(
+  )
+
+ntd_metrics_df
+
+# join dfs
+
+service_costs <- inner_join(service_2019_df, op_costs_2019_df)
+service_costs_metrics <- inner_join(service_costs, ntd_metrics_df, by = c("ntd_id", "mode")) %>%
+  rename(
+    agency_name = agency_name.x,
+    tos = tos.x
+  ) %>%
+  select(
+    -agency_name.y,
+    tos.y
+  )
+
+service_costs_metrics$agency_name <- as.factor(service_costs_metrics$agency_name)
+service_costs_metrics
+
+all_service_metrics_fin <- service_costs_metrics %>%
+  mutate( # rename fully agency title to common city name
+    agency_name = recode_factor(agency_name, 
+                                "Indianapolis and Marion County Public Transportation" = "Indianapolis",
+                                "Capital Metropolitan Transportation Authority" = "Austin",
+                                "Johnson County Kansas" = "Kansas City",
+                                "City of El Paso" = "El Paso",
+                                "Central Oklahoma Transportation and Parking Authority" = "Oklahoma City",
+                                "Metropolitan Tulsa Transit Authority" = "Tulsa",
+                                "City of Albuquerque" = "Albuquerque",
+                                "City of Colorado Springs" = "Colorado Springs",
+                                "Transit Authority of Omaha" = "Omaha",
+                                "Kansas City Area Transportation Authority" = "Kansas City",
+                                "Golden Empire Transit District" = "Bakersfield", 
+                                "Sacramento Regional Transit District" = "Sacramento",
+                                "City of Tucson" = "Tucson",
+                                "City of Fresno" = "Fresno")
+  ) %>%
+  mutate_all( # replace , (thousands seperator) with " "
+    funs(gsub(",","",.))  
+  ) %>%
+  mutate_at(
+    ., c("fare_revenues_per_unlinked_passenger_trip", "cost_per_hour", "cost_per_passenger", "cost_per_passenger_mile", "fare_revenues_earned"), funs(str_remove_all(., "[$]"))
+  ) %>%
+  mutate_at(., 
+    c("ntd_id", "agency_voms", "mode_voms", "fare_revenues_per_total_operating_expense_recover_ratio", 
+      "passengers_per_hour", "unlinked_passenger_trips", "vehicle_revenue_hours", "vehicle_revenue_miles",
+      "total_operating_expenses", "vechicles_op_max_service", "vehicles_avail_max_service", "actual_vehicle_car_miles",
+      "actual_vehicle_car_revenue_miles", "actual_vehicle_car_deadhead_miles", "actual_vehicle_car_hours", "actual_vehicle_car_revenue_hours",
+      "actual_vehicle_car_deadhead_hours", "passenger_miles", "fare_revenues_per_unlinked_passenger_trip", "cost_per_hour", "cost_per_passenger", "cost_per_passenger_mile", "fare_revenues_earned"), 
+    as.numeric
+  ) 
+
+
+all_service_metrics_fin
+
+    
+```
+
+# Key Findings
+
+**Note:** This project was designed to build on previous project completed during an academic internship. For more background, read the project [explainer](https://github.com/brendongray/abqtransitdata/blob/main/README.md). 
+
+- Albuquerque transit is more efficient than many peers.
+
+- Fare revenues are much lower than other peer systems. 
+
+A high-level peer review was conducted to compare Albuquerque transit’s performance relative to a group of peer systems. Performance was evaluated during 2019. 
+
+A total of 12 comparison cites were selected. Population and geography were used as a guide in selecting this peer group. The peer cities are:
+
+| Southwest           | West             | Midwest           |
+| :---                |    :----         |          :---     |
+| Austin              | Bakersfield      | Kansas City       |
+| Colorado Springs    | Fresno           | Indianapolis      |
+| El Paso             | Sacramento       | Omaha             |
+| Tucson              |                  |                   |  
+| Oklahoma City       |                  |                   |
+| Tulsa               |                  |                   |  
+
+Some cities in the comparison group are much more populous than Albuquerque, such as Austin, Sacramento, Kansas City, and Indianapolis. Cities with an asterisk include multiple agencies within the region.
+
+These statistics demonstrate Albuquerque meets or exceeds the average performance of its peers. Albuquerque tends to have a more efficient system than those in this peer group. Likewise, although Albuquerque’s operating costs and level service provision are about at the peer group average, the city’s efficiency with respect to cost and service provision is considerably higher than the peer group average.
+
+The average service population of the peer group is about 706,000. Albuquerque is about 40,000 less populous than the average. Austin, TX has a population roughly twice as large as the average. Throughout the comparison, note that Austin is an outlier in this regard. Albuquerque is one of 6 cities in the southwest; the remaining are either on the west coast or in the Midwest. Comparisons across geography add another layer of complexity, as some systems have been operating for longer than Albuquerque’s. MSA population was not included in this analysis. 
+
+This analysis is a simple representation that does not include many factors, such as cities’ demographics. No statistic perfectly captures a comparison between any two transit systems.
+
+# Trips
+Albuquerque has a below average number of annual trips (9.6 million). The peer group average is 10.8 million. 
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+#, fig.width = 10
+# service metrics
+service_size_metrics <- all_service_metrics_fin %>%
+  group_by(
+    agency_name
+  ) %>%
+  summarize(
+    total_upt = sum(unlinked_passenger_trips)/1000
+  ) %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, total_upt),
+    avg_upt = mean(total_upt)
+  )
+
+avg_upt <- service_size_metrics$avg_upt
+avg_upt
+  ggplot(data=service_size_metrics, aes(x = total_upt, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", width = 0.70, position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_upt, color = "Average"), linetype = "dashed") +
+  labs(title = "Annual Trips",
+       subtitle = "In '000s, 2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+
+```
+
+# Service
+Peers averaged 6.8 million revenue hours while Albuquerque provided 5.3 million. Austin is a notable outlier (16.6 million), which increases the overall average.
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+#, fig.width = 10
+# annual revenue hours
+rev_hours <- all_service_metrics_fin %>%
+  group_by(
+    agency_name
+  ) %>%
+  summarize(
+    total_vehicle_rev_miles = sum(actual_vehicle_car_revenue_miles)/1000
+  ) %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, total_vehicle_rev_miles),
+    avg_rev_miles = mean(total_vehicle_rev_miles)
+  )
+rev_hours
+avg_rev_miles <- rev_hours$avg_rev_miles
+avg_rev_miles
+  ggplot(data=rev_hours, aes(x = total_vehicle_rev_miles, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", width = 0.70, position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_rev_miles, color = "Average"), linetype = "dashed") +
+  labs(title = "Annual Revenue Hours",
+       subtitle = "In '000s, 2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+
+```
+
+# Expenses
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# operating expenses
+summ_op_expenses <- all_service_metrics_fin %>%
+  group_by(
+    agency_name
+  ) %>%
+  summarize(
+    tot_op_expenses = sum(total_operating_expenses)/1000,
+    op_expense_per_upt = tot_op_expenses/(sum(unlinked_passenger_trips)/1000),
+    op_expense_per_rev_hour = tot_op_expenses/(sum(vehicle_revenue_hours)/1000)
+  ) %>%
+  mutate(
+    avg_op_expenses = mean(tot_op_expenses),
+    avg_op_expense_per_upt = mean(op_expense_per_upt),
+    avg_op_expense_per_rev_hour = mean(op_expense_per_rev_hour)
+  )
+
+op_expenses <- summ_op_expenses %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, tot_op_expenses, .desc = TRUE)
+  )
+
+op_expenses_per_upt <- summ_op_expenses %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, op_expense_per_upt, .desc = TRUE)
+  )
+
+op_expenses_per_rev_hour <- summ_op_expenses %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, op_expense_per_rev_hour, .desc = TRUE)
+  )
+ 
+avg_op_expenses <- summ_op_expenses$avg_op_expenses
+avg_op_expense_per_upt <- summ_op_expenses$avg_op_expense_per_upt
+avg_op_expense_per_rev_hour <- summ_op_expenses$avg_op_expense_per_rev_hour
+```
+
+Operating costs were measured based off the cost of operating motor bus and demand response service only. These are the reference comparisons with Albuquerque.
+
+The peer group averaged \$63.4 million in operating expenses in 2019. Albuquerque’s operating costs were about 50% below the average at \$42.8 million. 
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(data=op_expenses, aes(x = tot_op_expenses, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_op_expenses, color = "Average"), linetype="dashed") +
+  labs(title = "Annual Operating Costs",
+       subtitle = "In '000s, 2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+```
+
+Albuquerque’s cost effectiveness (operating cost per trip) was \$4.4 cost per unit of service, below the peer group average of \$5.8. 
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(data=op_expenses_per_upt, aes(x = op_expense_per_upt, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_op_expense_per_upt, color = "Average"), linetype="dashed") +
+  labs(title = "Operating Cost per Trip",
+       subtitle = "2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+```
+
+The city’s cost per revenue hour was \$106, below the average of \$111.6. 
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+op_expenses_per_rev_hour
+avg_op_expense_per_rev_hour
+
+ggplot(data=op_expenses_per_rev_hour, aes(x = op_expense_per_rev_hour, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_op_expense_per_rev_hour, color = "Average"), linetype="dashed") +
+  labs(title = "Operating Cost per Revenue Hour",
+       subtitle = "2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+  
+```
+These three operating expense measures show is near the peer group average with overall operating costs and in the upper quarter with effectiveness measures.
+
+
+# Fares
+Fare revenue was compared across the peer group. Although Albuquerque was at or above the peer group average for most of the above metrics, Albuquerque is behind with respect to fare revenue.  
+ 
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+# Revenues earned 
+
+summ_revs_earned <- all_service_metrics_fin %>%
+  filter(
+    mode == "MB"
+  ) %>%
+  select(
+    agency_name,
+    fare_revenues_per_total_operating_expense_recover_ratio,
+    fare_revenues_per_unlinked_passenger_trip
+  ) %>%
+  group_by(
+    agency_name
+  ) %>%
+  summarize(
+    fare_revenues_per_total_operating_expense_recover_ratio = mean(fare_revenues_per_total_operating_expense_recover_ratio),
+    fare_revenues_per_unlinked_passenger_trip = mean(fare_revenues_per_unlinked_passenger_trip)
+  ) %>%
+  mutate(
+    avg_fare_revenues_per_total_operating_expense_recover_ratio = mean(fare_revenues_per_total_operating_expense_recover_ratio),
+    avg_fare_revenues_per_unlinked_passenger_trip = mean(fare_revenues_per_unlinked_passenger_trip),
+  )
+
+recov_ratio <- summ_revs_earned %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, fare_revenues_per_total_operating_expense_recover_ratio)
+  )
+
+fare_revs_upt <- summ_revs_earned %>%
+  select(
+    agency_name, fare_revenues_per_unlinked_passenger_trip
+  ) %>%
+  mutate(
+    agency_name = fct_reorder(agency_name, fare_revenues_per_unlinked_passenger_trip)
+  )
+fare_revs_upt
+avg_fare_revenues_per_total_operating_expense_recover_ratio <- summ_revs_earned$avg_fare_revenues_per_total_operating_expense_recover_ratio
+
+avg_fare_revenues_per_unlinked_passenger_trip <- summ_revs_earned$avg_fare_revenues_per_unlinked_passenger_trip
+```
+
+The city’s \$3.2 m in fare revenue is well below the \$5.3 m peer group average. Comparing fare efficiency– i.e. fares per trip – still puts Albuquerque at the bottom of the sample. The city had the lowest fare revenues earned per trip at \$0.34, coming in 64% below the average of \$0.82.
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(data=fare_revs_upt, aes(x = fare_revenues_per_unlinked_passenger_trip, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_fare_revenues_per_unlinked_passenger_trip, color = "Average"), linetype="dashed") +
+  labs(title = "Fare Revenues per UPT",
+       subtitle = "2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+```
+
+Albuquerque’s recovery ratio – the fare revenue earned per operating expense – was also the lowest of the peer group. Albuquerque had a recovery ratio of just 0.08. The average was 0.135 (68% higher than Albuquerque). Note cities with recovery ratios above 0.135 (Colorado Springs, Sacramento, Omaha, Bakersfield,  and Tucson) have relatively low service provision and service efficiency. This may indicate these systems operate under a different business model, which would explain the dramatic differences in recovery ratios.
+
+```{R, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(data=recov_ratio, aes(x = fare_revenues_per_total_operating_expense_recover_ratio, y = agency_name, fill=factor(ifelse(agency_name=="Albuquerque","abq","nonabq")))) +
+  geom_col(stat="identity", position = position_dodge(), alpha = 1) +
+  scale_fill_manual(name = "agency_name", values=c("#FFDD9C","#A8B7DF")) +
+  geom_vline(aes(xintercept = avg_fare_revenues_per_total_operating_expense_recover_ratio, color = "Average"), linetype="dashed") +
+  labs(title = "Fare Revenues Earned per Operating Expense - Recovery Ratio",
+       subtitle = "2019",
+       y = "",
+       caption = "Data from National Transit Database, 2019") +
+  guides(fill=FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_classic_transit() +
+  theme(legend.title=element_blank())
+
+
+```
+
+
+
+# Large Systems Comparison
+**Note:** This section was made using a seperate data visualization software.
+
+A sample of large systems were selected to compare against Albuquerque’s metrics. To simplify the comparison, three metrics were selected: service population, annual trips, and fare efficiency. Cities in orange have light rail service options (or the equivalent); cities in blue do not. As expected, cities with more population tend to have light rail service. Albuquerque has both a relatively small service population and a lower number of annual trips provided. Note cities who service similarly populous areas (Dallas, Portland, and Phoenix) all have below average fare efficiency. Albuquerque has comparable fare efficiency to this subset of systems. 
+
+
+
+
+
+
+
+
