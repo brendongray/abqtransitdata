@@ -10,9 +10,9 @@ For what it's worth, I'm not affiliated with the city, and I'm sure there are a 
 
 ## Links
 
-[Original product,](https://github.com/brendongray/abqtransitdata/blob/d8230b4e86ae78978cf955b7fcc09f8c92d44222/Transit%20Presenation.pdf) produced in spring 2020.
+[Original product,](https://github.com/brendongray/abqtransitdata/blob/d8230b4e86ae78978cf955b7fcc09f8c92d44222/Transit%20Presenation.pdf) produced in the spring of 2020.
 
-Final product.
+[Final product,](https://brendongray.github.io/abqtransitdata/RevisedTransitAnalysis2019.html) produced in the summer of 2021.
 
 Narrative of changes & design approach.
 
