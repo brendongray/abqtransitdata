@@ -1,4 +1,5 @@
-# Narrative of changes
+# ABQ Transit Data (Re)Analysis
+## Narrative of changes
 
 The initial project was assigned by my project supervisor with the condition to replicate a previous transit data summary. The design choices (like color scheme, layout, etc.) were taken from that original work product. In my re-creation, I tried to retain as much of the original as possible, hence the consistent (if bland) design.
 
