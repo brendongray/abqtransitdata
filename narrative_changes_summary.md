@@ -11,3 +11,11 @@ Some minor differences between the original and the final came up, and I did my 
 
 Lastly, I decided to stray from the original when producing the last data viz. I used a seperate data viz software, Flourish, to make this visual really pop. I didn't really like my original idea, and thought this was an appropriate place to make an improvement.
 
+### Links to project components
+
+[About the project](https://brendongray.github.io/abqtransitdata/)
+
+[Original product,](https://github.com/brendongray/abqtransitdata/blob/d8230b4e86ae78978cf955b7fcc09f8c92d44222/Transit%20Presenation.pdf) produced in the spring of 2020.
+
+[Final product,](https://brendongray.github.io/abqtransitdata/RevisedTransitAnalysis2019.html) produced in the summer of 2021.
+
