@@ -78,6 +78,7 @@ with Albuquerque.
 The peer group averaged $63.4 million in operating expenses in 2019.
 Albuquerque’s operating costs were about 50% below the average at $42.8
 million.
+
 ![](RevisedTransitAnalysis2019_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 Albuquerque’s cost effectiveness (operating cost per trip) was $4.4 cost
@@ -88,6 +89,7 @@ per unit of service, below the peer group average of $5.8.
 The city’s cost per revenue hour was $106, below the average of $111.6.
 
 ![](RevisedTransitAnalysis2019_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
 These three operating expense measures show is near the peer group
 average with overall operating costs and in the upper quarter with
 effectiveness measures.
