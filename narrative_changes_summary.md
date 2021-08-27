@@ -13,7 +13,7 @@ Lastly, I decided to stray from the original when producing the last data viz. I
 
 ### Links to project components
 
-[About the project](https://brendongray.github.io/abqtransitdata/)
+[About the project.](https://brendongray.github.io/abqtransitdata/)
 
 [Original product,](https://github.com/brendongray/abqtransitdata/blob/d8230b4e86ae78978cf955b7fcc09f8c92d44222/Transit%20Presenation.pdf) produced in the spring of 2020.
 
