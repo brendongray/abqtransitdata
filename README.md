@@ -8,7 +8,7 @@ I decided to start this project to fix those two issue areas. I used R Markdown 
 
 This is the type of work that improves accuracy, efficency, and data usefullness. 
 
-For what it's worth, I'm not affiliated with the city, and I'm sure there are a number of errors in this work product, all of which are attributable to me.
+For what it's worth, I'm not affiliated with the city. This was an individual project, not completed in conjuction with any academic program. I'm sure there are a number of errors in this work product, all of which are attributable to me.
 
 ## Links
 
@@ -16,7 +16,6 @@ For what it's worth, I'm not affiliated with the city, and I'm sure there are a 
 
 [Final product,](https://brendongray.github.io/abqtransitdata/RevisedTransitAnalysis2019.html) produced in the summer of 2021.
 
-Narrative of changes & design approach.
-
+[Narrative of changes & design approach.](https://brendongray.github.io/abqtransitdata/narrative_changes_summary.html)
 
 
