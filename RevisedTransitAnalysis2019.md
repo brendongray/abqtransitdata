@@ -116,19 +116,3 @@ systems operate under a different business model, which would explain
 the dramatic differences in recovery ratios.
 
 ![](RevisedTransitAnalysis2019_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-# Large Systems Comparison
-
-**Note:** This section was made using a seperate data visualization
-software.
-
-A sample of large systems were selected to compare against Albuquerque’s
-metrics. To simplify the comparison, three metrics were selected:
-service population, annual trips, and fare efficiency. Cities in orange
-have light rail service options (or the equivalent); cities in blue do
-not. As expected, cities with more population tend to have light rail
-service. Albuquerque has both a relatively small service population and
-a lower number of annual trips provided. Note cities who service
-similarly populous areas (Dallas, Portland, and Phoenix) all have below
-average fare efficiency. Albuquerque has comparable fare efficiency to
-this subset of systems.
