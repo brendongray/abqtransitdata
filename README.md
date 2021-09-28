@@ -6,7 +6,7 @@ In spring 2020, I was an intern with the City of Albuquerque's transit departmen
 
 I decided to start this project to fix those two issue areas. I used R Markdown to create a [reproducible data visualization](https://brendongray.github.io/abqtransitdata/RevisedTransitAnalysis2019.html) suitable for quick internal evaluations that drive data-grounded insight. In this version, the work is entirely reproducible and error free (assuming the inital code is good). It also easily updates each year the NTD publishes its reports, with just one file download nessecary. 
 
-This is the type of work that improves accuracy, efficency, and data usefullness. 
+This is the type of work that improves accuracy, efficency, and data usefulness. 
 
 For what it's worth, I'm not affiliated with the city. This was an individual project, not completed in conjuction with any academic program. I'm sure there are a number of errors in this work product, all of which are attributable to me.
 
